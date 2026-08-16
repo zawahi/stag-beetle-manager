@@ -26,17 +26,17 @@ const isActive = (path: string) => route.path === path
       <ul class="nav nav-pills flex-column mb-auto gap-2">
         <li class="nav-item">
           <router-link to="/" class="nav-link text-white" :class="{ 'active': route.path === '/' }">
-            🏠 ダッシュボード
+            ダッシュボード
           </router-link>
         </li>
         <li class="nav-item">
           <router-link to="/beetles" class="nav-link text-white" :class="{ 'active': route.path.startsWith('/beetle') }">
-            🪲 生体・幼虫管理
+            生体・幼虫管理
           </router-link>
         </li>
         <li class="nav-item">
           <router-link to="/breeding" class="nav-link text-white" :class="{ 'active': route.path.startsWith('/breeding') }">
-            ❤️ ペアリング記録
+            ペアリング記録
           </router-link>
         </li>
       </ul>

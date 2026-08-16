@@ -5,236 +5,190 @@ import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
-const beetleId = route.params.id
 
 const beetle = ref(null)
-const bottleRecords = ref([])
-const showBottleForm = ref(false)
-
-const newBottle = ref({
-  beetleId: beetleId,
+const records = ref([])
+const newRecord = ref({
   exchangeDate: new Date().toISOString().split('T')[0],
-  mediaType: 0, // 0: 菌糸, 1: マット, 2: 材
-  mediaName: '',
+  bottleType: '菌糸ビン',
+  capacity: 800,
   weight: null,
   headWidth: null,
   notes: ''
 })
 
-const fetchBeetle = async () => {
+const fetchBeetleDetail = async () => {
   try {
-    const response = await axios.get(`/api/Beetles/${beetleId}`)
-    beetle.value = response.data
-    fetchBottleRecords()
+    const res = await axios.get(`/api/Beetles/${route.params.id}`)
+    beetle.value = res.data
   } catch (error) {
-    console.error('Error fetching beetle:', error)
+    console.error(error)
   }
 }
 
 const fetchBottleRecords = async () => {
   try {
-    const response = await axios.get(`/api/BottleRecords/beetle/${beetleId}`)
-    bottleRecords.value = response.data
+    const res = await axios.get(`/api/BottleRecords/beetle/${route.params.id}`)
+    records.value = res.data
   } catch (error) {
-    console.error('Error fetching bottle records:', error)
+    console.error(error)
   }
 }
 
 const addBottleRecord = async () => {
   try {
-    await axios.post('/api/BottleRecords', newBottle.value)
-    showBottleForm.value = false
-    newBottle.value.mediaName = ''
-    newBottle.value.weight = null
-    newBottle.value.headWidth = null
-    newBottle.value.notes = ''
+    await axios.post('/api/BottleRecords', { ...newRecord.value, beetleId: route.params.id })
+    newRecord.value = { exchangeDate: new Date().toISOString().split('T')[0], bottleType: '菌糸ビン', capacity: 800, weight: null, headWidth: null, notes: '' }
     fetchBottleRecords()
   } catch (error) {
-    console.error('Error adding bottle record:', error)
-    alert('登録に失敗しました。')
+    console.error(error)
+    alert('追加に失敗しました。')
+  }
+}
+
+const deleteBottleRecord = async (id: string) => {
+  if (!confirm('この記録を削除してもよろしいですか？')) return
+  try {
+    await axios.delete(`/api/BottleRecords/${id}`)
+    fetchBottleRecords()
+  } catch (error) {
+    console.error(error)
+    alert('削除に失敗しました。')
   }
 }
 
 onMounted(() => {
-  fetchBeetle()
+  fetchBeetleDetail()
+  fetchBottleRecords()
 })
 
-const getStageName = (stage: number) => {
-  const stages = ['卵', '幼虫', '蛹', '成虫']
-  return stages[stage] || '不明'
-}
-
-const getGenderName = (gender: number) => {
-  const genders = ['不明', 'オス', 'メス']
-  return genders[gender] || '不明'
-}
-
-const getMediaTypeName = (type: number) => {
-  const types = ['菌糸', 'マット', '材']
-  return types[type] || '不明'
-}
+const getStageName = (stage: number) => ['卵', '幼虫', '蛹', '成虫'][stage] || '不明'
+const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender] || '不明'
 </script>
 
 <template>
-  <div>
-    <div v-if="beetle">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>{{ beetle.name || '名称未設定' }} の詳細</h2>
-        <button class="btn btn-secondary" @click="router.push('/')">一覧へ戻る</button>
+  <div v-if="beetle">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+      <h2 class="text-secondary m-0">個体詳細: <span class="text-dark fw-bold">{{ beetle.name || '名称未設定' }}</span></h2>
+      <button class="btn btn-outline-secondary" @click="router.push('/beetles')">一覧へ戻る</button>
+    </div>
+
+    <!-- 生体情報カード -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white border-bottom pt-3 pb-3">
+        <h5 class="m-0 text-muted fw-bold">基本情報</h5>
       </div>
-      
-      <div class="card">
-        <h3>基本情報</h3>
-        <table class="detail-table">
+      <div class="card-body p-0">
+        <table class="table table-bordered m-0 align-middle">
           <tbody>
-            <tr><th>種類</th><td>{{ beetle.species }}</td><th>産地</th><td>{{ beetle.locality || '-' }}</td></tr>
-            <tr><th>累代</th><td>{{ beetle.generation || '-' }}</td><th>ステージ</th><td>{{ getStageName(beetle.stage) }}</td></tr>
-            <tr><th>性別</th><td>{{ getGenderName(beetle.gender) }}</td><th>サイズ</th><td>{{ beetle.size ? `${beetle.size} mm` : '-' }}</td></tr>
             <tr>
-              <th>オス親 (Sire)</th>
+              <th class="bg-light" style="width: 15%;">種類</th><td style="width: 35%;">{{ beetle.species }}</td>
+              <th class="bg-light" style="width: 15%;">産地</th><td style="width: 35%;">{{ beetle.locality || '-' }}</td>
+            </tr>
+            <tr>
+              <th class="bg-light">累代</th><td>{{ beetle.generation || '-' }}</td>
+              <th class="bg-light">ステージ</th><td><span class="badge bg-secondary">{{ getStageName(beetle.stage) }}</span></td>
+            </tr>
+            <tr>
+              <th class="bg-light">性別</th><td>{{ getGenderName(beetle.gender) }}</td>
+              <th class="bg-light">サイズ</th><td>{{ beetle.size ? `${beetle.size} mm` : '-' }}</td>
+            </tr>
+            <tr>
+              <th class="bg-light">オス親 (Sire)</th>
               <td>
-                <router-link v-if="beetle.sireId" :to="`/beetle/${beetle.sireId}`">{{ beetle.sire?.name || beetle.sire?.species || '不明' }}</router-link>
-                <span v-else>不明</span>
+                <router-link v-if="beetle.sireId" :to="`/beetle/${beetle.sireId}`" class="text-decoration-none fw-bold text-primary">{{ beetle.sire?.name || beetle.sire?.species || '不明' }}</router-link>
+                <span v-else class="text-muted">不明</span>
               </td>
-              <th>メス親 (Dam)</th>
+              <th class="bg-light">メス親 (Dam)</th>
               <td>
-                <router-link v-if="beetle.damId" :to="`/beetle/${beetle.damId}`">{{ beetle.dam?.name || beetle.dam?.species || '不明' }}</router-link>
-                <span v-else>不明</span>
+                <router-link v-if="beetle.damId" :to="`/beetle/${beetle.damId}`" class="text-decoration-none fw-bold text-danger">{{ beetle.dam?.name || beetle.dam?.species || '不明' }}</router-link>
+                <span v-else class="text-muted">不明</span>
               </td>
             </tr>
-            <tr><th>孵化日</th><td>{{ beetle.hatchDate ? beetle.hatchDate.split('T')[0] : '-' }}</td><th>羽化日</th><td>{{ beetle.emergenceDate ? beetle.emergenceDate.split('T')[0] : '-' }}</td></tr>
-            <tr><th>メモ</th><td colspan="3">{{ beetle.notes || '-' }}</td></tr>
+            <tr>
+              <th class="bg-light">孵化日</th><td>{{ beetle.hatchDate ? beetle.hatchDate.split('T')[0] : '-' }}</td>
+              <th class="bg-light">羽化日</th><td>{{ beetle.emergenceDate ? beetle.emergenceDate.split('T')[0] : '-' }}</td>
+            </tr>
+            <tr>
+              <th class="bg-light">メモ</th><td colspan="3">{{ beetle.notes || '-' }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
+    </div>
 
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h3>ボトル交換・計測記録</h3>
-          <button class="btn" @click="showBottleForm = !showBottleForm">記録を追加</button>
-        </div>
+    <!-- 菌糸ビン交換記録 -->
+    <h3 class="mb-3 text-secondary">ビン・マット交換記録</h3>
+    
+    <div class="card shadow-sm border-0 mb-4 bg-light">
+      <div class="card-body p-3">
+        <form @submit.prevent="addBottleRecord" class="row gx-2 gy-2 align-items-end">
+          <div class="col-md-2">
+            <label class="form-label small fw-bold">交換日</label>
+            <input type="date" class="form-control form-control-sm" v-model="newRecord.exchangeDate" required />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small fw-bold">種類</label>
+            <input type="text" class="form-control form-control-sm" v-model="newRecord.bottleType" placeholder="菌糸, マット等" required />
+          </div>
+          <div class="col-md-1">
+            <label class="form-label small fw-bold">容量(cc)</label>
+            <input type="number" class="form-control form-control-sm" v-model="newRecord.capacity" required />
+          </div>
+          <div class="col-md-1">
+            <label class="form-label small fw-bold">体重(g)</label>
+            <input type="number" step="0.1" class="form-control form-control-sm" v-model="newRecord.weight" />
+          </div>
+          <div class="col-md-1">
+            <label class="form-label small fw-bold">頭幅(mm)</label>
+            <input type="number" step="0.1" class="form-control form-control-sm" v-model="newRecord.headWidth" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-bold">メモ</label>
+            <input type="text" class="form-control form-control-sm" v-model="newRecord.notes" placeholder="銘柄など" />
+          </div>
+          <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-primary btn-sm fw-bold">追加</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-        <div v-if="showBottleForm" class="bottle-form">
-          <form @submit.prevent="addBottleRecord">
-            <div class="form-row">
-              <div class="form-group">
-                <label>交換日</label>
-                <input v-model="newBottle.exchangeDate" type="date" required />
-              </div>
-              <div class="form-group">
-                <label>種類</label>
-                <select v-model="newBottle.mediaType">
-                  <option :value="0">菌糸</option>
-                  <option :value="1">マット</option>
-                  <option :value="2">材</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>銘柄</label>
-                <input v-model="newBottle.mediaName" type="text" placeholder="例: レビンG" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>体重 (g)</label>
-                <input v-model="newBottle.weight" type="number" step="0.1" />
-              </div>
-              <div class="form-group">
-                <label>頭幅 (mm)</label>
-                <input v-model="newBottle.headWidth" type="number" step="0.1" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label>メモ</label>
-              <input v-model="newBottle.notes" type="text" />
-            </div>
-            <div style="text-align: right;">
-              <button type="submit" class="btn">保存</button>
-            </div>
-          </form>
-        </div>
-
-        <table>
-          <thead>
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle m-0">
+          <thead class="table-light">
             <tr>
-              <th>日付</th>
-              <th>種類</th>
-              <th>銘柄</th>
+              <th class="ps-3">交換日</th>
+              <th>種類 / 容量</th>
               <th>体重</th>
               <th>頭幅</th>
               <th>メモ</th>
+              <th class="pe-3 text-end">操作</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="record in bottleRecords" :key="record.id">
-              <td>{{ record.exchangeDate.split('T')[0] }}</td>
-              <td>{{ getMediaTypeName(record.mediaType) }}</td>
-              <td>{{ record.mediaName || '-' }}</td>
-              <td>{{ record.weight ? `${record.weight} g` : '-' }}</td>
+            <tr v-for="record in records" :key="record.id">
+              <td class="ps-3 fw-bold">{{ record.exchangeDate.split('T')[0] }}</td>
+              <td><span class="badge bg-secondary">{{ record.bottleType }}</span> {{ record.capacity }}cc</td>
+              <td class="fw-bold text-success">{{ record.weight ? `${record.weight} g` : '-' }}</td>
               <td>{{ record.headWidth ? `${record.headWidth} mm` : '-' }}</td>
-              <td>{{ record.notes || '-' }}</td>
+              <td class="text-muted">{{ record.notes || '-' }}</td>
+              <td class="pe-3 text-end">
+                <button class="btn btn-sm btn-outline-danger" @click="deleteBottleRecord(record.id)">削除</button>
+              </td>
             </tr>
-            <tr v-if="bottleRecords.length === 0">
-              <td colspan="6" style="text-align: center; color: #7f8c8d;">記録がありません</td>
+            <tr v-if="records.length === 0">
+              <td colspan="6" class="text-center text-muted py-4">交換記録がありません</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    <div v-else>
-      <p>読み込み中...</p>
+  </div>
+  <div v-else class="text-center p-5">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
   </div>
 </template>
-
-<style scoped>
-.detail-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.detail-table th {
-  background-color: #f8f9fa;
-  width: 15%;
-  border-bottom: 1px solid #ddd;
-}
-.detail-table td {
-  width: 35%;
-  border-bottom: 1px solid #ddd;
-}
-.bottle-form {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-}
-.form-group {
-  margin-bottom: 10px;
-}
-.form-row {
-  display: flex;
-  gap: 15px;
-}
-.form-row .form-group {
-  flex: 1;
-}
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-input, select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-.btn-secondary {
-  background-color: #95a5a6;
-}
-.btn-secondary:hover {
-  background-color: #7f8c8d;
-}
-</style>

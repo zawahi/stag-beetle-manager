@@ -45,7 +45,7 @@ onMounted(() => {
                 <td><span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">{{ record.femaleName || '不明' }}</span></td>
                 <td>{{ record.setDate ? record.setDate.split('T')[0] : '未セット' }}</td>
                 <td>{{ record.allocationDate ? record.allocationDate.split('T')[0] : '未割り出し' }}</td>
-                <td class="pe-3">🥚 {{ record.eggCount || 0 }} / 🐛 {{ record.larvaCount || 0 }}</td>
+                <td class="pe-3">卵: {{ record.eggCount || 0 }} / 幼虫: {{ record.larvaCount || 0 }}</td>
               </tr>
               <tr v-if="breedingRecords.length === 0">
                 <td colspan="6" class="text-center text-muted py-4">ペアリング記録がありません</td>

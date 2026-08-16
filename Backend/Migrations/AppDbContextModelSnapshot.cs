@@ -96,7 +96,7 @@ namespace KuwagataApp.Backend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("EmergenceDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Gender")
                         .HasColumnType("integer");
@@ -105,7 +105,7 @@ namespace KuwagataApp.Backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("HatchDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Locality")
                         .HasColumnType("text");
@@ -154,17 +154,18 @@ namespace KuwagataApp.Backend.Migrations
                     b.Property<Guid>("BeetleId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BottleType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("ExchangeDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<decimal?>("HeadWidth")
                         .HasColumnType("numeric");
-
-                    b.Property<string>("MediaName")
-                        .HasColumnType("text");
-
-                    b.Property<int>("MediaType")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Notes")
                         .HasColumnType("text");
@@ -190,13 +191,13 @@ namespace KuwagataApp.Backend.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("AllocationDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("EggCount")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("FemaleName")
                         .IsRequired()
@@ -213,10 +214,10 @@ namespace KuwagataApp.Backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("SetDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()

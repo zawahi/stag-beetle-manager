@@ -22,89 +22,82 @@ onMounted(() => {
 
 <template>
   <div>
-    <h2>ダッシュボード</h2>
+    <h2 class="mb-4 text-secondary border-bottom pb-2">ダッシュボード</h2>
     
-    <div v-if="stats" class="dashboard-grid">
-      <div class="stat-card" @click="router.push('/beetles')">
-        <h3>総飼育数</h3>
-        <div class="stat-number">{{ stats.totalBeetles }}</div>
+    <div v-if="stats" class="row g-4 mb-5">
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 border-top border-primary border-4 h-100 text-center clickable-card" @click="router.push('/beetles')">
+          <div class="card-body">
+            <h6 class="text-muted text-uppercase mb-2">総飼育数</h6>
+            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.totalBeetles }}</h2>
+          </div>
+        </div>
       </div>
-      <div class="stat-card" @click="router.push('/beetles')">
-        <h3>幼虫</h3>
-        <div class="stat-number">{{ stats.larvaeCount }}</div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 border-top border-info border-4 h-100 text-center clickable-card" @click="router.push('/beetles')">
+          <div class="card-body">
+            <h6 class="text-muted text-uppercase mb-2">幼虫</h6>
+            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.larvaeCount }}</h2>
+          </div>
+        </div>
       </div>
-      <div class="stat-card" @click="router.push('/beetles')">
-        <h3>成虫</h3>
-        <div class="stat-number">{{ stats.adultCount }}</div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 border-top border-success border-4 h-100 text-center clickable-card" @click="router.push('/beetles')">
+          <div class="card-body">
+            <h6 class="text-muted text-uppercase mb-2">成虫</h6>
+            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.adultCount }}</h2>
+          </div>
+        </div>
       </div>
-      <div class="stat-card" @click="router.push('/breeding')">
-        <h3>進行中のペアリング</h3>
-        <div class="stat-number">{{ stats.breedingActiveCount }}</div>
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 border-top border-danger border-4 h-100 text-center clickable-card" @click="router.push('/breeding')">
+          <div class="card-body">
+            <h6 class="text-muted text-uppercase mb-2">進行中のペアリング</h6>
+            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.breedingActiveCount }}</h2>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div v-if="stats && stats.bottleAlerts.length > 0" class="card alert-card">
-      <h3 style="color: #e74c3c;">⚠️ ボトル交換アラート（3ヶ月経過）</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>管理名</th>
-            <th>前回交換日</th>
-            <th>経過日数</th>
-            <th>アクション</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="alert in stats.bottleAlerts" :key="alert.beetleId">
-            <td>{{ alert.beetleName }}</td>
-            <td>{{ alert.lastExchangeDate.split('T')[0] }}</td>
-            <td style="color: #e74c3c; font-weight: bold;">{{ alert.daysSinceExchange }} 日</td>
-            <td>
-              <button class="btn btn-small" @click="router.push(`/beetle/${alert.beetleId}`)">詳細へ</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-if="stats && stats.bottleAlerts.length > 0" class="card shadow-sm border-0 border-start border-danger border-5 mb-4">
+      <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+        <h5 class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> ボトル交換アラート（3ヶ月経過）</h5>
+      </div>
+      <div class="card-body p-0 mt-2">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">管理名</th>
+                <th>前回交換日</th>
+                <th>経過日数</th>
+                <th class="pe-4 text-end">アクション</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="alert in stats.bottleAlerts" :key="alert.beetleId">
+                <td class="ps-4 fw-bold">{{ alert.beetleName }}</td>
+                <td>{{ alert.lastExchangeDate.split('T')[0] }}</td>
+                <td class="text-danger fw-bold">{{ alert.daysSinceExchange }} 日</td>
+                <td class="pe-4 text-end">
+                  <button class="btn btn-sm btn-outline-danger" @click="router.push(`/beetle/${alert.beetleId}`)">詳細を確認</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-}
-.stat-card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  text-align: center;
+.clickable-card {
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border-top: 4px solid #4CAF50;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.stat-card:hover {
+.clickable-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-.stat-card h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  color: #7f8c8d;
-}
-.stat-number {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #2c3e50;
-}
-.alert-card {
-  border-left: 4px solid #e74c3c;
-}
-.btn-small {
-  padding: 5px 10px;
-  font-size: 0.8rem;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
 }
 </style>

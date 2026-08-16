@@ -48,5 +48,18 @@ namespace KuwagataApp.Backend.Controllers
 
             return CreatedAtAction("GetBottleRecordsForBeetle", new { beetleId = record.BeetleId }, record);
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBottleRecord(Guid id)
+        {
+            var userId = GetUserId();
+            var record = await _context.BottleRecords.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+            
+            if (record == null) return NotFound();
+
+            _context.BottleRecords.Remove(record);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
