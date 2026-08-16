@@ -3,6 +3,8 @@ import './style.css'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
+import BaseButton from './components/BaseButton.vue'
+import BaseInput from './components/BaseInput.vue'
 
 // Add auth interceptor
 axios.interceptors.request.use(config => {
@@ -25,6 +27,9 @@ axios.interceptors.response.use(response => response, error => {
 })
 
 const app = createApp(App)
+
+app.component('BaseButton', BaseButton)
+app.component('BaseInput', BaseInput)
 
 app.use(router)
 

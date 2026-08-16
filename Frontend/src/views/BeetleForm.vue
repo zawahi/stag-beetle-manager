@@ -70,22 +70,22 @@ const submitForm = async () => {
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary">管理名・番号</label>
-              <input type="text" class="form-control" v-model="form.name" placeholder="例: 23年1番" />
+              <BaseInput type="text" class="form-control" v-model="form.name" placeholder="例: 23年1番" />
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary">種類</label>
-              <input type="text" class="form-control" v-model="form.species" required />
+              <BaseInput type="text" class="form-control" v-model="form.species" required />
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary">産地</label>
-              <input type="text" class="form-control" v-model="form.locality" placeholder="例: 能勢" />
+              <BaseInput type="text" class="form-control" v-model="form.locality" placeholder="例: 能勢" />
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary">累代</label>
-              <input type="text" class="form-control" v-model="form.generation" placeholder="例: CBF1" />
+              <BaseInput type="text" class="form-control" v-model="form.generation" placeholder="例: CBF1" />
             </div>
           </div>
 
@@ -109,18 +109,18 @@ const submitForm = async () => {
             </div>
             <div class="col-md-4">
               <label class="form-label fw-bold text-secondary">サイズ (mm)</label>
-              <input type="number" step="0.1" class="form-control" v-model="form.size" placeholder="例: 80.5" />
+              <BaseInput type="number" step="0.1" class="form-control" v-model="form.size" placeholder="例: 80.5" />
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary">孵化日</label>
-              <input type="date" class="form-control" v-model="form.hatchDate" />
+              <BaseInput type="date" class="form-control" v-model="form.hatchDate" />
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary">羽化日</label>
-              <input type="date" class="form-control" v-model="form.emergenceDate" />
+              <BaseInput type="date" class="form-control" v-model="form.emergenceDate" />
             </div>
           </div>
 
@@ -151,8 +151,8 @@ const submitForm = async () => {
           </div>
 
           <div class="d-flex justify-content-end gap-2 border-top pt-3">
-            <button type="button" class="btn btn-outline-secondary px-4" @click="$router.push('/beetles')">キャンセル</button>
-            <button type="submit" class="btn btn-success px-5 fw-bold" :disabled="isSubmitting">登録する</button>
+            <BaseButton type="button" class="btn btn-outline-secondary px-4" @click="$router.push('/beetles')">キャンセル</BaseButton>
+            <BaseButton type="submit" class="btn btn-success px-5 fw-bold" :disabled="isSubmitting">登録する</BaseButton>
           </div>
         </form>
       </div>

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import StatCard from '../components/StatCard.vue'
 
 const stats = ref(null)
 const router = useRouter()
@@ -25,38 +26,10 @@ onMounted(() => {
     <h2 class="mb-4 text-secondary border-bottom pb-2">ダッシュボード</h2>
     
     <div v-if="stats" class="row g-4 mb-5">
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm border-0 border-top border-primary border-4 h-100 text-center clickable-card" @click="router.push('/beetles')">
-          <div class="card-body">
-            <h6 class="text-muted text-uppercase mb-2">総飼育数</h6>
-            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.totalBeetles }}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm border-0 border-top border-info border-4 h-100 text-center clickable-card" @click="router.push('/beetles')">
-          <div class="card-body">
-            <h6 class="text-muted text-uppercase mb-2">幼虫</h6>
-            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.larvaeCount }}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm border-0 border-top border-success border-4 h-100 text-center clickable-card" @click="router.push('/beetles')">
-          <div class="card-body">
-            <h6 class="text-muted text-uppercase mb-2">成虫</h6>
-            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.adultCount }}</h2>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm border-0 border-top border-danger border-4 h-100 text-center clickable-card" @click="router.push('/breeding')">
-          <div class="card-body">
-            <h6 class="text-muted text-uppercase mb-2">進行中のペアリング</h6>
-            <h2 class="display-5 fw-bold text-dark mb-0">{{ stats.breedingActiveCount }}</h2>
-          </div>
-        </div>
-      </div>
+      <StatCard title="総飼育数" :value="stats.totalBeetles" link="/beetles" borderColorClass="border-primary" />
+      <StatCard title="幼虫" :value="stats.larvaeCount" link="/beetles" borderColorClass="border-info" />
+      <StatCard title="成虫" :value="stats.adultCount" link="/beetles" borderColorClass="border-success" />
+      <StatCard title="進行中のペアリング" :value="stats.breedingActiveCount" link="/breeding" borderColorClass="border-danger" />
     </div>
 
     <div v-if="stats && stats.bottleAlerts.length > 0" class="card shadow-sm border-0 border-start border-danger border-5 mb-4">
@@ -64,8 +37,9 @@ onMounted(() => {
         <h5 class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill"></i> ボトル交換アラート（3ヶ月経過）</h5>
       </div>
       <div class="card-body p-0 mt-2">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
+        <!-- Desktop Table -->
+        <div class="table-responsive d-none d-md-block">
+          <table class="table table-hover align-middle mb-0 text-nowrap">
             <thead class="table-light">
               <tr>
                 <th class="ps-4">管理名</th>
@@ -80,11 +54,27 @@ onMounted(() => {
                 <td>{{ alert.lastExchangeDate.split('T')[0] }}</td>
                 <td class="text-danger fw-bold">{{ alert.daysSinceExchange }} 日</td>
                 <td class="pe-4 text-end">
-                  <button class="btn btn-sm btn-outline-danger" @click="router.push(`/beetle/${alert.beetleId}`)">詳細を確認</button>
+                  <BaseButton class="btn btn-sm btn-outline-danger" @click="router.push(`/beetle/${alert.beetleId}`)">詳細を確認</BaseButton>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="d-md-none p-3 bg-light">
+          <div v-for="alert in stats.bottleAlerts" :key="alert.beetleId" class="card shadow-sm border-danger border-opacity-50 mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold m-0 text-dark">{{ alert.beetleName }}</h6>
+                <span class="text-danger fw-bold">{{ alert.daysSinceExchange }} 日経過</span>
+              </div>
+              <div class="text-muted small mb-3">
+                <strong>前回交換日:</strong> {{ alert.lastExchangeDate.split('T')[0] }}
+              </div>
+              <BaseButton class="btn btn-outline-danger w-100 fw-bold" @click="router.push(`/beetle/${alert.beetleId}`)">詳細を確認</BaseButton>
+            </div>
+          </div>
         </div>
       </div>
     </div>

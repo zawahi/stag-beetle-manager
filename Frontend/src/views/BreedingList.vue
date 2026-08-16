@@ -26,8 +26,9 @@ onMounted(() => {
         <router-link to="/breeding/new" class="btn btn-success fw-bold">＋ 新規ペアリング開始</router-link>
       </div>
       <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover table-striped align-middle m-0">
+        <!-- Desktop Table -->
+        <div class="table-responsive d-none d-md-block">
+          <table class="table table-hover table-striped align-middle m-0 text-nowrap">
             <thead class="table-light">
               <tr>
                 <th class="ps-3">同居開始日</th>
@@ -52,6 +53,30 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="d-md-none p-3 bg-light">
+          <div v-for="record in breedingRecords" :key="record.id" class="card shadow-sm mb-3 border-0">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <span class="fw-bold text-dark">同居開始:<br> {{ record.startDate ? record.startDate.split('T')[0] : '-' }}</span>
+                <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1">{{ record.maleName || '不明' }}</span>
+                <span class="mx-1">×</span>
+                <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1">{{ record.femaleName || '不明' }}</span>
+              </div>
+              <div class="row text-muted small gy-2">
+                <div class="col-6"><strong>セット日:</strong> <br>{{ record.setDate ? record.setDate.split('T')[0] : '未セット' }}</div>
+                <div class="col-6"><strong>割出日:</strong> <br>{{ record.allocationDate ? record.allocationDate.split('T')[0] : '未割り出し' }}</div>
+                <div class="col-12 mt-2 pt-2 border-top">
+                  <strong>結果:</strong> 卵 {{ record.eggCount || 0 }} / 幼虫 {{ record.larvaCount || 0 }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="breedingRecords.length === 0" class="text-center text-muted py-4">
+            ペアリング記録がありません
+          </div>
         </div>
       </div>
     </div>

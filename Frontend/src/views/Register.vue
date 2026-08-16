@@ -31,12 +31,12 @@ const register = async () => {
           <form @submit.prevent="register">
             <div class="mb-3">
               <label class="form-label text-secondary fw-bold">メールアドレス</label>
-              <input type="email" class="form-control form-control-lg" v-model="form.email" placeholder="name@example.com" required />
+              <BaseInput type="email" class="form-control form-control-lg" v-model="form.email" placeholder="name@example.com" required />
             </div>
             
             <div class="mb-4">
               <label class="form-label text-secondary fw-bold">パスワード <span class="text-danger small">*6文字以上</span></label>
-              <input type="password" class="form-control form-control-lg" v-model="form.password" placeholder="********" required minlength="6" />
+              <BaseInput type="password" class="form-control form-control-lg" v-model="form.password" placeholder="********" required minlength="6" />
             </div>
 
             <div v-if="errorMsg" class="alert alert-danger py-2" role="alert">
@@ -44,7 +44,7 @@ const register = async () => {
             </div>
 
             <div class="d-grid gap-2 mt-4">
-              <button type="submit" class="btn btn-primary btn-lg fw-bold">無料で登録する</button>
+              <BaseButton type="submit" class="btn btn-primary btn-lg fw-bold">無料で登録する</BaseButton>
             </div>
           </form>
         </div>

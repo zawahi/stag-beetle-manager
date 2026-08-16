@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KuwagataApp.Backend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0bdd9783693205229bd339d84f4fe4562d6bd08e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d84dbd35e32966ffe484df20e39f26bf70a58355")]
 [assembly: System.Reflection.AssemblyProductAttribute("KuwagataApp.Backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KuwagataApp.Backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

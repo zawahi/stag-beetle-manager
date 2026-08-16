@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import ConfirmModal from '../components/ConfirmModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -84,7 +85,7 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
   <div v-if="beetle">
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
       <h2 class="text-secondary m-0">個体詳細: <span class="text-dark fw-bold">{{ beetle.name || '名称未設定' }}</span></h2>
-      <button class="btn btn-outline-secondary" @click="router.push('/beetles')">一覧へ戻る</button>
+      <BaseButton class="btn btn-outline-secondary" @click="router.push('/beetles')">一覧へ戻る</BaseButton>
     </div>
 
     <!-- 生体情報カード -->
@@ -92,8 +93,9 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
       <div class="card-header bg-white border-bottom pt-3 pb-3">
         <h5 class="m-0 text-muted fw-bold">基本情報</h5>
       </div>
-      <div class="card-body p-0">
-        <table class="table table-bordered m-0 align-middle">
+      <!-- Desktop Basic Info Table -->
+      <div class="card-body p-0 table-responsive d-none d-md-block">
+        <table class="table table-bordered m-0 align-middle text-nowrap">
           <tbody>
             <tr>
               <th class="bg-light" style="width: 15%;">種類</th><td style="width: 35%;">{{ beetle.species }}</td>
@@ -124,10 +126,58 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
               <th class="bg-light">羽化日</th><td>{{ beetle.emergenceDate ? beetle.emergenceDate.split('T')[0] : '-' }}</td>
             </tr>
             <tr>
-              <th class="bg-light">メモ</th><td colspan="3">{{ beetle.notes || '-' }}</td>
+              <th class="bg-light">メモ</th><td colspan="3" class="text-wrap">{{ beetle.notes || '-' }}</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Mobile Basic Info -->
+      <div class="card-body p-3 d-md-none">
+        <div class="row gy-3">
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">種類</div>
+            <div class="fw-bold">{{ beetle.species }}</div>
+          </div>
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">産地</div>
+            <div class="fw-bold">{{ beetle.locality || '-' }}</div>
+          </div>
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">累代</div>
+            <div class="fw-bold">{{ beetle.generation || '-' }}</div>
+          </div>
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">ステージ / 性別</div>
+            <div class="fw-bold">
+              <span class="badge bg-secondary me-1">{{ getStageName(beetle.stage) }}</span>
+              <span>{{ getGenderName(beetle.gender) }}</span>
+            </div>
+          </div>
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">サイズ</div>
+            <div class="fw-bold">{{ beetle.size ? `${beetle.size} mm` : '-' }}</div>
+          </div>
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">親情報</div>
+            <div class="small">
+              <span class="text-primary">♂:</span> {{ beetle.sire?.name || '不明' }}<br>
+              <span class="text-danger">♀:</span> {{ beetle.dam?.name || '不明' }}
+            </div>
+          </div>
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">孵化日</div>
+            <div class="fw-bold">{{ beetle.hatchDate ? beetle.hatchDate.split('T')[0] : '-' }}</div>
+          </div>
+          <div class="col-6 border-bottom pb-2">
+            <div class="text-muted small mb-1">羽化日</div>
+            <div class="fw-bold">{{ beetle.emergenceDate ? beetle.emergenceDate.split('T')[0] : '-' }}</div>
+          </div>
+          <div class="col-12">
+            <div class="text-muted small mb-1">メモ</div>
+            <div>{{ beetle.notes || '-' }}</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -144,38 +194,39 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
         <form @submit.prevent="addBottleRecord" class="row gx-2 gy-2 align-items-end">
           <div class="col-md-2">
             <label class="form-label small fw-bold">交換日</label>
-            <input type="date" class="form-control form-control-sm" v-model="newRecord.exchangeDate" required />
+            <BaseInput type="date" class="form-control form-control-sm" v-model="newRecord.exchangeDate" required />
           </div>
           <div class="col-md-2">
             <label class="form-label small fw-bold">種類</label>
-            <input type="text" class="form-control form-control-sm" v-model="newRecord.bottleType" placeholder="菌糸, マット等" required />
+            <BaseInput type="text" class="form-control form-control-sm" v-model="newRecord.bottleType" placeholder="菌糸, マット等" required />
           </div>
           <div class="col-md-1">
             <label class="form-label small fw-bold">容量(cc)</label>
-            <input type="number" class="form-control form-control-sm" v-model="newRecord.capacity" required />
+            <BaseInput type="number" class="form-control form-control-sm" v-model="newRecord.capacity" required />
           </div>
           <div class="col-md-1">
             <label class="form-label small fw-bold">体重(g)</label>
-            <input type="number" step="0.1" class="form-control form-control-sm" v-model="newRecord.weight" />
+            <BaseInput type="number" step="0.1" class="form-control form-control-sm" v-model="newRecord.weight" />
           </div>
           <div class="col-md-1">
             <label class="form-label small fw-bold">頭幅(mm)</label>
-            <input type="number" step="0.1" class="form-control form-control-sm" v-model="newRecord.headWidth" />
+            <BaseInput type="number" step="0.1" class="form-control form-control-sm" v-model="newRecord.headWidth" />
           </div>
           <div class="col-md-4">
             <label class="form-label small fw-bold">メモ</label>
-            <input type="text" class="form-control form-control-sm" v-model="newRecord.notes" placeholder="銘柄など" />
+            <BaseInput type="text" class="form-control form-control-sm" v-model="newRecord.notes" placeholder="銘柄など" />
           </div>
           <div class="col-md-1 d-grid">
-            <button type="submit" class="btn btn-primary btn-sm fw-bold">追加</button>
+            <BaseButton type="submit" class="btn btn-primary btn-sm fw-bold">追加</BaseButton>
           </div>
         </form>
       </div>
     </div>
 
     <div class="card shadow-sm border-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle m-0">
+      <!-- Desktop Table -->
+      <div class="table-responsive d-none d-md-block">
+        <table class="table table-hover align-middle m-0 text-nowrap">
           <thead class="table-light">
             <tr>
               <th class="ps-3">交換日</th>
@@ -194,7 +245,7 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
               <td>{{ record.headWidth ? `${record.headWidth} mm` : '-' }}</td>
               <td class="text-muted">{{ record.notes || '-' }}</td>
               <td class="pe-3 text-end">
-                <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(record.id)">削除</button>
+                <BaseButton class="btn btn-sm btn-outline-danger" @click="confirmDelete(record.id)">削除</BaseButton>
               </td>
             </tr>
             <tr v-if="records.length === 0">
@@ -203,26 +254,42 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
           </tbody>
         </table>
       </div>
-    </div>
 
-    <!-- 削除確認モーダル -->
-    <div v-if="showDeleteModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.5); z-index: 1050;" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-          <div class="modal-header border-bottom-0">
-            <h5 class="modal-title fw-bold text-danger">記録の削除</h5>
-            <button type="button" class="btn-close" @click="showDeleteModal = false"></button>
+      <!-- Mobile Cards -->
+      <div class="d-md-none p-3 bg-light">
+        <div v-for="record in records" :key="record.id" class="card shadow-sm mb-3 border-0">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+              <span class="fw-bold text-dark">{{ record.exchangeDate.split('T')[0] }}</span>
+              <BaseButton class="btn btn-sm btn-outline-danger px-2 py-0" @click="confirmDelete(record.id)">削除</BaseButton>
+            </div>
+            <div class="row text-muted small gy-2">
+              <div class="col-6">
+                <strong>種類:</strong> <span class="badge bg-secondary">{{ record.bottleType }}</span>
+              </div>
+              <div class="col-6"><strong>容量:</strong> {{ record.capacity }}cc</div>
+              <div class="col-6"><strong>体重:</strong> <span class="text-success fw-bold">{{ record.weight ? `${record.weight} g` : '-' }}</span></div>
+              <div class="col-6"><strong>頭幅:</strong> {{ record.headWidth ? `${record.headWidth} mm` : '-' }}</div>
+              <div class="col-12 border-top pt-2 mt-2"><strong>メモ:</strong> {{ record.notes || '-' }}</div>
+            </div>
           </div>
-          <div class="modal-body text-secondary">
-            この交換記録を完全に削除します。よろしいですか？
-          </div>
-          <div class="modal-footer border-top-0">
-            <button type="button" class="btn btn-light px-4" @click="showDeleteModal = false">キャンセル</button>
-            <button type="button" class="btn btn-danger px-4 fw-bold" @click="executeDelete">削除する</button>
-          </div>
+        </div>
+        <div v-if="records.length === 0" class="text-center text-muted py-4">
+          交換記録がありません
         </div>
       </div>
     </div>
+
+    <!-- 削除確認モーダル コンポーネント -->
+    <ConfirmModal 
+      :show="showDeleteModal" 
+      title="記録の削除" 
+      message="この交換記録を完全に削除します。よろしいですか？" 
+      confirmText="削除する"
+      confirmVariant="danger"
+      @close="showDeleteModal = false" 
+      @confirm="executeDelete" 
+    />
   </div>
   <div v-else class="text-center p-5">
     <div class="spinner-border text-success" role="status">
