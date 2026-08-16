@@ -5,6 +5,8 @@ import axios from 'axios'
 
 const router = useRouter()
 
+const errorMessage = ref('')
+
 const form = ref({
   maleName: '',
   femaleName: '',
@@ -17,12 +19,13 @@ const isSubmitting = ref(false)
 
 const submitForm = async () => {
   isSubmitting.value = true
+  errorMessage.value = ''
   try {
     await axios.post('/api/BreedingRecords', form.value)
     router.push('/breeding')
   } catch (error) {
     console.error('Registration failed:', error)
-    alert('登録に失敗しました。')
+    errorMessage.value = '登録に失敗しました。入力内容を確認してください。'
   } finally {
     isSubmitting.value = false
   }
@@ -32,6 +35,11 @@ const submitForm = async () => {
 <template>
   <div>
     <h2 class="mb-4 text-secondary border-bottom pb-2">新規ペアリング開始</h2>
+    
+    <div v-if="errorMessage" class="alert alert-danger shadow-sm border-0 mb-4">
+      {{ errorMessage }}
+    </div>
+
     <div class="card shadow-sm border-0">
       <div class="card-body p-4">
         <form @submit.prevent="submitForm">

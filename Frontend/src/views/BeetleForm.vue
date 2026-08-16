@@ -7,6 +7,7 @@ const router = useRouter()
 
 const males = ref([])
 const females = ref([])
+const errorMessage = ref('')
 
 const form = ref({
   name: '',
@@ -41,12 +42,13 @@ onMounted(() => {
 
 const submitForm = async () => {
   isSubmitting.value = true
+  errorMessage.value = ''
   try {
     await axios.post('/api/Beetles', form.value)
     router.push('/beetles')
   } catch (error) {
     console.error('Registration failed:', error)
-    alert('登録に失敗しました。')
+    errorMessage.value = '登録に失敗しました。入力内容を確認してください。'
   } finally {
     isSubmitting.value = false
   }
@@ -57,6 +59,10 @@ const submitForm = async () => {
   <div>
     <h2 class="mb-4 text-secondary border-bottom pb-2">生体・幼虫の新規登録</h2>
     
+    <div v-if="errorMessage" class="alert alert-danger shadow-sm border-0 mb-4">
+      {{ errorMessage }}
+    </div>
+
     <div class="card shadow-sm border-0">
       <div class="card-body p-4">
         <form @submit.prevent="submitForm">

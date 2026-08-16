@@ -8,6 +8,10 @@ const router = useRouter()
 
 const beetle = ref(null)
 const records = ref([])
+const errorMessage = ref('')
+const showDeleteModal = ref(false)
+const recordToDelete = ref<string | null>(null)
+
 const newRecord = ref({
   exchangeDate: new Date().toISOString().split('T')[0],
   bottleType: '菌糸ビン',
@@ -36,24 +40,34 @@ const fetchBottleRecords = async () => {
 }
 
 const addBottleRecord = async () => {
+  errorMessage.value = ''
   try {
     await axios.post('/api/BottleRecords', { ...newRecord.value, beetleId: route.params.id })
     newRecord.value = { exchangeDate: new Date().toISOString().split('T')[0], bottleType: '菌糸ビン', capacity: 800, weight: null, headWidth: null, notes: '' }
     fetchBottleRecords()
   } catch (error) {
     console.error(error)
-    alert('追加に失敗しました。')
+    errorMessage.value = '記録の追加に失敗しました。'
   }
 }
 
-const deleteBottleRecord = async (id: string) => {
-  if (!confirm('この記録を削除してもよろしいですか？')) return
+const confirmDelete = (id: string) => {
+  recordToDelete.value = id
+  showDeleteModal.value = true
+}
+
+const executeDelete = async () => {
+  if (!recordToDelete.value) return
+  errorMessage.value = ''
   try {
-    await axios.delete(`/api/BottleRecords/${id}`)
+    await axios.delete(`/api/BottleRecords/${recordToDelete.value}`)
+    showDeleteModal.value = false
+    recordToDelete.value = null
     fetchBottleRecords()
   } catch (error) {
     console.error(error)
-    alert('削除に失敗しました。')
+    errorMessage.value = '記録の削除に失敗しました。'
+    showDeleteModal.value = false
   }
 }
 
@@ -117,6 +131,11 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
       </div>
     </div>
 
+    <!-- エラーメッセージ表示 -->
+    <div v-if="errorMessage" class="alert alert-danger shadow-sm border-0">
+      {{ errorMessage }}
+    </div>
+
     <!-- 菌糸ビン交換記録 -->
     <h3 class="mb-3 text-secondary">ビン・マット交換記録</h3>
     
@@ -175,7 +194,7 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
               <td>{{ record.headWidth ? `${record.headWidth} mm` : '-' }}</td>
               <td class="text-muted">{{ record.notes || '-' }}</td>
               <td class="pe-3 text-end">
-                <button class="btn btn-sm btn-outline-danger" @click="deleteBottleRecord(record.id)">削除</button>
+                <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(record.id)">削除</button>
               </td>
             </tr>
             <tr v-if="records.length === 0">
@@ -183,6 +202,25 @@ const getGenderName = (gender: number) => ['不明', 'オス', 'メス'][gender]
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- 削除確認モーダル -->
+    <div v-if="showDeleteModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.5); z-index: 1050;" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-bottom-0">
+            <h5 class="modal-title fw-bold text-danger">記録の削除</h5>
+            <button type="button" class="btn-close" @click="showDeleteModal = false"></button>
+          </div>
+          <div class="modal-body text-secondary">
+            この交換記録を完全に削除します。よろしいですか？
+          </div>
+          <div class="modal-footer border-top-0">
+            <button type="button" class="btn btn-light px-4" @click="showDeleteModal = false">キャンセル</button>
+            <button type="button" class="btn btn-danger px-4 fw-bold" @click="executeDelete">削除する</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
-const logout = () => {
+const showLogoutModal = ref(false)
+
+const executeLogout = () => {
   localStorage.removeItem('token')
   window.location.href = '/login'
 }
-
-const isActive = (path: string) => route.path === path
 </script>
 
 <template>
@@ -41,13 +41,32 @@ const isActive = (path: string) => route.path === path
         </li>
       </ul>
       <hr class="text-secondary">
-      <button class="btn btn-outline-light w-100 fw-bold" @click="logout">ログアウト</button>
+      <button class="btn btn-outline-light w-100 fw-bold" @click="showLogoutModal = true">ログアウト</button>
     </div>
 
     <!-- メインコンテンツ -->
     <div class="flex-grow-1 p-4 bg-light overflow-auto">
       <div class="container-fluid" style="max-width: 1200px;">
         <router-view />
+      </div>
+    </div>
+
+    <!-- ログアウト確認モーダル -->
+    <div v-if="showLogoutModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.5); z-index: 1050;" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-bottom-0">
+            <h5 class="modal-title fw-bold text-dark">ログアウト</h5>
+            <button type="button" class="btn-close" @click="showLogoutModal = false"></button>
+          </div>
+          <div class="modal-body text-secondary">
+            ログアウトしてもよろしいですか？
+          </div>
+          <div class="modal-footer border-top-0">
+            <button type="button" class="btn btn-light px-4" @click="showLogoutModal = false">キャンセル</button>
+            <button type="button" class="btn btn-danger px-4 fw-bold" @click="executeLogout">ログアウトする</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
